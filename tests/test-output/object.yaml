@@ -1,0 +1,6 @@
+apiVersion: promise.example.com/v1
+kind: flink
+metadata:
+  name: flink-promise-request
+spec:
+  name: flinkdep
