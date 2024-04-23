@@ -1,0 +1,10 @@
+failure-threshold: warning
+format: tty
+ignored:
+- DL3045
+- DL3018
+trustedRegistries:
+- docker.io
+- ghcr.io
+- "*.gcr.io"
+- quay.io
