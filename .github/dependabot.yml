@@ -1,0 +1,20 @@
+---
+#################################
+# GitHub Dependabot Config info #
+#################################
+version: 2
+updates:
+
+  - package-ecosystem: "devcontainers"
+    directory: "/"
+    schedule:
+      interval: weekly
+    open-pull-requests-limit: 100
+
+  - package-ecosystem: github-actions
+    commit-message:
+      prefix: "deps(github-actions)"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 100

@@ -1,0 +1,27 @@
+---
+name: Entrypoint
+
+on:
+  # IMPORTANT: workflow_dispatch needs to be entered before other properties
+  workflow_dispatch:
+
+  pull_request:
+    branches:
+      - "main"
+
+permissions:
+  actions: read
+  checks: write
+  contents: write
+  issues: read
+  packages: write
+  pull-requests: write
+  statuses: write
+  security-events: write
+  id-token: write
+
+jobs:
+  linter:
+    name: Linter
+    uses: ./.github/workflows/linter.yml
+    secrets: inherit
