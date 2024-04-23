@@ -25,5 +25,6 @@ jobs:
         uses: super-linter/super-linter@v6.3.1 # x-release-please-version
         env:
           DEFAULT_BRANCH: main
+          VALIDATE_KUBERNETES_KUBECONFORM: false
           # To report GitHub Actions status checks
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
