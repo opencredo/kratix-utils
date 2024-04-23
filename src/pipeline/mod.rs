@@ -1,12 +1,15 @@
+use log;
 use std::fs;
 use std::io::Result;
 use std::path::Path;
 use yaml_rust2::Yaml;
 use yaml_rust2::YamlLoader;
-use log;
+
+mod pipeline_config; 
+pub use pipeline_config::PipelineConfig; // Re-export PipelineConfig 
+
 
 pub fn load_file(file: &str) -> Result<Yaml> {
-    
     let path = Path::new(file);
     let contents = fs::read_to_string(path).expect("Should have been able to read the file");
 
@@ -56,7 +59,6 @@ pub fn list_files_recursively(path: &str) {
     }
 }
 
-
 #[allow(dead_code)]
 pub fn status() {
     if let Err(err) = fs::copy(
@@ -66,3 +68,5 @@ pub fn status() {
         log::warn!("Error during file copy: {}", err);
     }
 }
+
+
