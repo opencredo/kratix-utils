@@ -5,9 +5,8 @@ use std::path::Path;
 use yaml_rust2::Yaml;
 use yaml_rust2::YamlLoader;
 
-mod pipeline_config; 
-pub use pipeline_config::PipelineConfig; // Re-export PipelineConfig 
-
+mod pipeline_config;
+pub use pipeline_config::PipelineConfig; // Re-export PipelineConfig
 
 pub fn load_file(file: &str) -> Result<Yaml> {
     let path = Path::new(file);
@@ -68,5 +67,3 @@ pub fn status() {
         log::warn!("Error during file copy: {}", err);
     }
 }
-
-

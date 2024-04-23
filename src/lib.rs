@@ -1,5 +1,5 @@
 pub mod pipeline;
-mod promise;
+pub mod promise;
 use log;
 use crate::pipeline::PipelineConfig;
 use std::{env, process};
