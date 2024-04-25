@@ -5,14 +5,31 @@ use dotenv::dotenv;
 use log;
 use std::{env, process};
 
+use log::LevelFilter;
+use log4rs::append::console::ConsoleAppender;
+use log4rs::config::{Appender, Root};
+use log4rs::Config;
+
 // Structure to hold potential errors
 #[derive(Debug)]
 struct EnvVarError {
     var_name: String,
 }
 
-pub fn run_pipeline(args: Vec<String>) {
+pub trait ResourceRequest {
+    fn transform(&self, conf: &PipelineConfig) -> String;
+}
+
+pub fn run_pipeline(_request: Option<impl ResourceRequest>) -> PipelineConfig {
     dotenv().ok();
+
+    let stdout = ConsoleAppender::builder().build();
+    let config = Config::builder()
+        .appender(Appender::builder().build("stdout", Box::new(stdout)))
+        .build(Root::builder().appender("stdout").build(LevelFilter::Trace))
+        .unwrap();
+
+    let _handle = log4rs::init_config(config).unwrap();
 
     // Validate environment variables up front
     match validate_env_vars() {
@@ -26,10 +43,10 @@ pub fn run_pipeline(args: Vec<String>) {
         }
     }
 
-    if args.len() < 2 {
-        log::warn!("Usage: <command> [build, pipeline, load, push, rmi, pull]");
-        process::exit(1);
-    }
+    // if request.args().len() < 2 {
+    //     log::warn!("Usage: <command> [build, pipeline, load, push, rmi, pull]");
+    //     process::exit(1);
+    // }
 
     // Extract validated environment variables
     let workflow_type = env::var("KRATIX_WORKFLOW_TYPE").unwrap();
@@ -61,7 +78,11 @@ pub fn run_pipeline(args: Vec<String>) {
             }
         }
         "resource" => {
-            log::debug!("  1. transform resource");
+            log::debug!(
+                "  1. transform resource {}",
+                _request.expect("R").transform(&config)
+            );
+
             // Fullfil resource_request.yaml
             promise::transform(
                 config.res_dir(),
@@ -90,6 +111,7 @@ pub fn run_pipeline(args: Vec<String>) {
     //pipeline::list_files_recursively(_kratix_output_dir);
 
     log::debug!("<- End Pipeline ->");
+    return config;
 }
 
 // validation function
