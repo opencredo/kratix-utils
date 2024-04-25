@@ -20,7 +20,26 @@ pub trait ResourceRequest {
     fn transform(&self, conf: &PipelineConfig) -> String;
 }
 
-pub fn run_pipeline(_request: Option<impl ResourceRequest>) -> PipelineConfig {
+pub fn run_pipeline() -> PipelineConfig {
+    #[derive(Clone)]
+    pub struct MyPromise {
+        pub params: String,
+    }
+
+    impl ResourceRequest for MyPromise {
+        fn transform(&self, _conf: &PipelineConfig) -> String {
+            format!("{}", self.params)
+        }
+    }
+
+    let request = MyPromise {
+        params: String::from("(default)"),
+    };
+
+    return run_custom_pipeline(Some(request));
+}
+
+pub fn run_custom_pipeline(_request: Option<impl ResourceRequest>) -> PipelineConfig {
     dotenv().ok();
 
     let stdout = ConsoleAppender::builder().build();
