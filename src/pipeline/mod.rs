@@ -1,9 +1,13 @@
 use log;
-use std::fs;
-use std::io::Result;
-use std::path::Path;
-use yaml_rust2::Yaml;
-use yaml_rust2::YamlLoader;
+use std::{
+    fs,
+    io::Result,
+    path::Path,
+};
+use yaml_rust2::{
+    Yaml,
+    YamlLoader,
+};
 
 mod pipeline_config;
 pub use pipeline_config::PipelineConfig; // Re-export PipelineConfig
@@ -42,6 +46,7 @@ pub fn copy_files(source_dir: &str, destination_dir: &str) -> Result<()> {
 
 #[allow(dead_code)]
 pub fn list_files_recursively(path: &str) {
+    log::debug!("list_files_recursively for {}", path);
     if let Ok(entries) = fs::read_dir(path) {
         for entry in entries {
             if let Ok(entry) = entry {

@@ -1,48 +1,63 @@
-// use kratix_utils::pipeline::PipelineConfig;
-// use kratix_utils::promise;
-// use std::env;
-
-fn sqrt(number: f64) -> Result<f64, String> {
-    if number >= 0.0 {
-        Ok(number.powf(0.5))
-    } else {
-        Err("negative floats don't have square roots".to_owned())
-    }
-}
+use kratix_utils::{pipeline::PipelineConfig, run_custom_pipeline, ResourceRequest};
+use std::{env, path::Path};
 
 #[cfg(test)]
 mod tests {
     use super::*;
 
+    const WORKSPACE: &str = "WORKSPACE";
+    const KRATIX_WORKFLOW_TYPE: &str = "KRATIX_WORKFLOW_TYPE";
+
+    #[derive(Clone)]
+    pub struct MyPromise {
+        pub params: String,
+    }
+
+    impl ResourceRequest for MyPromise {
+        fn transform(&self, _conf: &PipelineConfig) -> String {
+            let new_kin_path = format!("{}/object.yaml", _conf.kratix_input_dir());
+
+            format!("{} modify {:?}", self.params, new_kin_path)
+        }
+    }
+
     #[test]
-    fn test_resource_request() -> Result<(), String> {
-        let x = 4.0;
+    fn test_list_files_recursively() -> Result<(), String> {
+        let current_dir = env::current_dir().unwrap();
+        env::set_var(WORKSPACE, current_dir);
+        let x = "tests/test-input";
+        kratix_utils::pipeline::list_files_recursively(x);
 
-        // Extract validated environment variables
-        // let workflow_type = env::var("KRATIX_WORKFLOW_TYPE").unwrap();
-        // let base_instance = env::var("BASE_INSTANCE").unwrap();
-        // let dep_dir = env::var("DEPENDENCIES_DIR").unwrap();
-        // let res_dir = env::var("RESOURCES_DIR").unwrap();
-        // let kratix_input_dir = env::var("KRATIX_INPUT").unwrap();
-        // let kratix_output_dir = env::var("KRATIX_OUTPUT").unwrap();
-
-        // let config = PipelineConfig::new(
-        //     &base_instance,
-        //     &res_dir,
-        //     &dep_dir,
-        //     &kratix_output_dir,
-        //     &kratix_input_dir,
-        //     &workflow_type,
-        // );
-
-        // promise::transform(
-        //     config.res_dir(),
-        //     config.base_instance(),
-        //     config.kratix_output_dir(),
-        //     config.kratix_input_dir(),
-        // );
-
-        assert_eq!(sqrt(x)?.powf(2.0), x);
         Ok(())
+    }
+
+    #[test]
+    fn test_promise_request() -> Result<(), String> {
+        init_logger();
+
+        let current_dir = env::current_dir().unwrap();
+        env::set_var(WORKSPACE, current_dir);
+        env::set_var(KRATIX_WORKFLOW_TYPE, "promise");
+
+        let request = MyPromise {
+            params: String::from("(custom)"),
+        };
+
+        let _result = run_custom_pipeline(Some(request));
+
+        let new_kout_path = format!("{}/.gitkeep", _result.kratix_output_dir());
+        assert_eq!(Path::new(&new_kout_path).exists(), true);
+
+        Ok(())
+    }
+
+    fn init_logger() {
+        let _ = env_logger::builder()
+            // Include all events in tests
+            .filter_level(log::LevelFilter::max())
+            // Ensure events are captured by `cargo test`
+            .is_test(true)
+            // Ignore errors initializing the logger if tests race to configure it
+            .try_init();
     }
 }
