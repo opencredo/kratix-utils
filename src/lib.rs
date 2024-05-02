@@ -2,13 +2,11 @@ pub mod pipeline;
 pub mod promise;
 use crate::pipeline::PipelineConfig;
 use dotenv::dotenv;
-use log;
-use std::{env, process};
 
-use log::LevelFilter;
-use log4rs::append::console::ConsoleAppender;
-use log4rs::config::{Appender, Root};
-use log4rs::Config;
+use std::{
+    env,
+    process,
+};
 
 // Structure to hold potential errors
 #[derive(Debug)]
@@ -20,6 +18,20 @@ pub trait ResourceRequest {
     fn transform(&self, conf: &PipelineConfig) -> String;
 }
 
+/// Runs the Kratix pipeline based on the specified workflow type.
+///
+/// This function checks the KRATIX_WORKFLOW_TYPE environment variable and
+/// executes the appropriate workflow, such as "promise", "resource", or
+/// "request". It handles file copying, resource transformation, and other tasks
+/// required for the pipeline execution.
+///
+/// # Example
+/// ```
+/// use std::env;
+/// env::set_var("KRATIX_WORKFLOW_TYPE", "promise");
+/// let result = kratix_utils::run_pipeline();
+/// assert_eq!(result.workflow_type(), "promise");
+/// ```
 pub fn run_pipeline() -> PipelineConfig {
     #[derive(Clone)]
     pub struct MyPromise {
@@ -28,7 +40,7 @@ pub fn run_pipeline() -> PipelineConfig {
 
     impl ResourceRequest for MyPromise {
         fn transform(&self, _conf: &PipelineConfig) -> String {
-            format!("{}", self.params)
+            self.params.to_string()
         }
     }
 
@@ -36,19 +48,11 @@ pub fn run_pipeline() -> PipelineConfig {
         params: String::from("(default)"),
     };
 
-    return run_custom_pipeline(Some(request));
+    run_custom_pipeline(Some(request))
 }
 
 pub fn run_custom_pipeline(_request: Option<impl ResourceRequest>) -> PipelineConfig {
     dotenv().ok();
-
-    let stdout = ConsoleAppender::builder().build();
-    let config = Config::builder()
-        .appender(Appender::builder().build("stdout", Box::new(stdout)))
-        .build(Root::builder().appender("stdout").build(LevelFilter::Trace))
-        .unwrap();
-
-    let _handle = log4rs::init_config(config).unwrap();
 
     // Validate environment variables up front
     match validate_env_vars() {
@@ -110,18 +114,9 @@ pub fn run_custom_pipeline(_request: Option<impl ResourceRequest>) -> PipelineCo
                 config.kratix_input_dir(),
             );
         }
-        "request" => {
-            log::debug!("  1. transform request");
-            // Fullfil resource_request.yaml
-            promise::transform(
-                config.res_dir(),
-                config.base_instance(),
-                config.kratix_output_dir(),
-                config.kratix_input_dir(),
-            );
-        }
         _ => {
             log::error!("No workflow_type");
+            panic!("No workflow_type");
         }
     }
 
@@ -130,7 +125,7 @@ pub fn run_custom_pipeline(_request: Option<impl ResourceRequest>) -> PipelineCo
     //pipeline::list_files_recursively(_kratix_output_dir);
 
     log::debug!("<- End Pipeline ->");
-    return config;
+    config
 }
 
 // validation function

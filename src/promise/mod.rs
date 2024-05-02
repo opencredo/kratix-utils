@@ -1,4 +1,7 @@
-use serde_yaml::{to_string, Value};
+use serde_yaml::{
+    to_string,
+    Value,
+};
 use std::fs::read_to_string;
 use std::fs::write; // Import 'write' for generic write operations, File for opening
 use std::io::Error; // Import ErrorKind
@@ -45,11 +48,14 @@ pub fn transform(_res_dir: &str, _res_path: &str, _kout_dir: &str, _kin_dir: &st
 
     // let new_name = kin_doc["spec"]["name"].as_str().unwrap().to_string();
 
-    // log::debug!("Template Instance Name {}",base_instance["metadata"]["name"].as_str().unwrap().to_string());
+    // log::debug!("Template Instance Name
+    // {}",base_instance["metadata"]["name"].as_str().unwrap().to_string());
 
-    // base_instance["metadata"]["name"] = serde_yaml::Value::String(new_name.clone());
+    // base_instance["metadata"]["name"] =
+    // serde_yaml::Value::String(new_name.clone());
 
-    // log::debug!("Promise Request Name {}",base_instance["metadata"]["name"].as_str().unwrap().to_string());
+    // log::debug!("Promise Request Name
+    // {}",base_instance["metadata"]["name"].as_str().unwrap().to_string());
 
     let new_kout_path = format!("{}/flink-instance.yaml", _kout_dir);
     log::debug!("kratix output {}", new_kout_path);
