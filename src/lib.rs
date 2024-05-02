@@ -2,7 +2,7 @@ pub mod pipeline;
 pub mod promise;
 use crate::pipeline::PipelineConfig;
 use dotenv::dotenv;
-use log;
+
 use std::{
     env,
     process,
@@ -40,7 +40,7 @@ pub fn run_pipeline() -> PipelineConfig {
 
     impl ResourceRequest for MyPromise {
         fn transform(&self, _conf: &PipelineConfig) -> String {
-            format!("{}", self.params)
+            self.params.to_string()
         }
     }
 
@@ -48,7 +48,7 @@ pub fn run_pipeline() -> PipelineConfig {
         params: String::from("(default)"),
     };
 
-    return run_custom_pipeline(Some(request));
+    run_custom_pipeline(Some(request))
 }
 
 pub fn run_custom_pipeline(_request: Option<impl ResourceRequest>) -> PipelineConfig {
@@ -125,7 +125,7 @@ pub fn run_custom_pipeline(_request: Option<impl ResourceRequest>) -> PipelineCo
     //pipeline::list_files_recursively(_kratix_output_dir);
 
     log::debug!("<- End Pipeline ->");
-    return config;
+    config
 }
 
 // validation function
